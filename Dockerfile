@@ -1,15 +1,26 @@
 FROM alpine
-RUN apk add bash
-RUN apk add openssh
+RUN apk update
+RUN apk add \
+    bash \
+    openssh \
+    git \
+    curl
 
-WORKDIR /home
+RUN adduser -S hdonato
+#RUN useradd -ms /bin/bash hdonato
+WORKDIR /home/hdonato
+RUN echo 'hdonato:hdonato' | chpasswd
+
+USER hdonato
 
 RUN mkdir .ssh
 # usr(rwx)  grp(rwx) oth(rwx)
 RUN chmod 700 .ssh
+
+# ejecutar una linea o la otra, son excluyentes
+# ----------------------------------------------
 #RUN ssh-keygen -t rsa -f .ssh/id_rsa -q -N ""
+COPY img-alpineb/.ssh /home/hdonato/.ssh
+# ----------------------------------------------
 
-COPY img-alpineb/.ssh /home/.ssh
-
-# scp -P 33001 /home/.ssh/id_rsa.pub gsamec@fipmrdf.ddns.net:/home/gsamec/.ssh/hdonato_id_rsa.pub
-# cat hdonato_id_rsa.pub >> ./authorized_keys
+# ssh-copy-id -p 33001 hdonato@fipmrdf.ddns.net
